@@ -1,0 +1,4 @@
+rootProject.name = 'ProductService'
+include 'api'
+include 'domain'
+

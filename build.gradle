@@ -48,7 +48,7 @@ subprojects {
         useJUnitPlatform()
     }
 
-    group = "br.com.vipautomacao.client"
+    group = "br.com.school.product"
 
     sourceCompatibility = '17'
     targetCompatibility = '17'
