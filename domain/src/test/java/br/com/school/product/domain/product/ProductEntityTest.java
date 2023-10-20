@@ -47,6 +47,40 @@ class ProductEntityTest {
         Assertions.assertEquals(expectedTotalErrors, expectedError.getErrors().size());
     }
 
+    @Test
+    void shouldNotInstanceNewProductWhenValuesAreNull() {
+        final var expectedSku = "1";
+        final var expectedName = "product name";
+        final var expectedStock = BigDecimal.valueOf(10);
+        final var expectedCost = BigDecimal.valueOf(20);
+        final var expectedPrice = BigDecimal.valueOf(30);
+
+        final var expectedErrorSku = Assertions.assertThrows(NullPointerException.class,
+            () -> ProductEntity.create(null, expectedName, expectedStock, expectedCost,
+                expectedPrice));
+        Assertions.assertEquals("sku cannot be null", expectedErrorSku.getMessage());
+
+        final var expectedErrorName = Assertions.assertThrows(NullPointerException.class,
+            () -> ProductEntity.create(expectedSku, null, expectedStock, expectedCost,
+                expectedPrice));
+        Assertions.assertEquals("name cannot be null", expectedErrorName.getMessage());
+
+        final var expectedErrorStock = Assertions.assertThrows(NullPointerException.class,
+            () -> ProductEntity.create(expectedSku, expectedName, null, expectedCost,
+                expectedPrice));
+        Assertions.assertEquals("stock cannot be null", expectedErrorStock.getMessage());
+
+        final var expectedErrorCost = Assertions.assertThrows(NullPointerException.class,
+            () -> ProductEntity.create(expectedSku, expectedName, expectedStock, null,
+                expectedPrice));
+        Assertions.assertEquals("cost cannot be null", expectedErrorCost.getMessage());
+
+        final var expectedErrorPrice = Assertions.assertThrows(NullPointerException.class,
+            () -> ProductEntity.create(expectedSku, expectedName, expectedStock, expectedCost,
+                null));
+        Assertions.assertEquals("price cannot be null", expectedErrorPrice.getMessage());
+    }
+
     private static Stream<Arguments> getPossiblesOfValueProduct() {
         final var bigText = "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
         return Stream.of(
