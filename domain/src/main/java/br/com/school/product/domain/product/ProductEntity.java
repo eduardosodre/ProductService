@@ -3,14 +3,22 @@ package br.com.school.product.domain.product;
 import br.com.school.product.domain.exception.NotificationException;
 import br.com.school.product.domain.validation.Error;
 import br.com.school.product.domain.validation.NotificationValidation;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@Entity
+@Table(name = "product")
+@NoArgsConstructor
 public class ProductEntity {
 
+    @Id
     private String id;
     private String sku;
     private String name;
