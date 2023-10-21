@@ -50,6 +50,29 @@ public class ProductEntity {
         return new ProductEntity(id, sku, name, stock, cost, price);
     }
 
+    public static ProductEntity with(ProductEntity productSource) {
+        return with(productSource.getId(),
+            productSource.getSku(),
+            productSource.getName(),
+            productSource.getStock(),
+            productSource.getCost(),
+            productSource.getPrice());
+    }
+
+    public static ProductEntity with(final String id,
+                                     final String sku,
+                                     final String name,
+                                     final BigDecimal stock,
+                                     final BigDecimal cost,
+                                     final BigDecimal price) {
+        return new ProductEntity(id,
+            sku,
+            name,
+            stock,
+            cost,
+            price);
+    }
+
     public void update(final String sku,
                        final String name,
                        final BigDecimal stock,
