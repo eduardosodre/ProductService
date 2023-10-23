@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import br.com.school.product.domain.exception.NotFoundException;
+import br.com.school.product.domain.kafka.product.EventType;
+import br.com.school.product.domain.kafka.product.ProductProducer;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +31,8 @@ class ProductServiceTest {
     private ProductService service;
     @Mock
     private ProductRepository repository;
+    @Mock
+    private ProductProducer producer;
 
     @Test
     void shouldCreateNewProduct() {
@@ -41,7 +45,11 @@ class ProductServiceTest {
         final var product = ProductEntity.create(expectedSku, expectedName, expectedStock,
             expectedCost, expectedPrice);
 
+        final var expectedId = product.getId();
+        final var expectedEventType = EventType.CREATE;
+
         when(repository.save(any())).thenReturn(product);
+        doNothing().when(producer).sendProduct(any());
 
         service.createProduct(product);
 
@@ -51,6 +59,12 @@ class ProductServiceTest {
                 && Objects.equals(expectedStock, arg.getStock())
                 && Objects.equals(expectedCost, arg.getCost())
                 && Objects.equals(expectedPrice, arg.getPrice())));
+        verify(producer, times(1))
+            .sendProduct(argThat(arg -> Objects.equals(expectedSku, arg.sku())
+                && Objects.equals(expectedName, arg.name())
+                && Objects.equals(expectedStock, arg.stock())
+                && Objects.equals(expectedId, arg.id())
+                && Objects.equals(expectedEventType, arg.eventType())));
     }
 
     @Test
@@ -65,10 +79,14 @@ class ProductServiceTest {
             BigDecimal.valueOf(100),
             BigDecimal.valueOf(200), BigDecimal.valueOf(300));
 
+        final var expectedId = productFromBd.getId();
+        final var expectedEventType = EventType.UPDATE;
+
         final var product = ProductEntity.with(productFromBd.getId(),
             expectedSku, expectedName, expectedStock, expectedCost, expectedPrice);
 
         when(repository.save(any())).thenReturn(product);
+        doNothing().when(producer).sendProduct(any());
 
         service.updateProduct(productFromBd, product);
 
@@ -78,6 +96,13 @@ class ProductServiceTest {
                 && Objects.equals(expectedStock, arg.getStock())
                 && Objects.equals(expectedCost, arg.getCost())
                 && Objects.equals(expectedPrice, arg.getPrice())));
+
+        verify(producer, times(1))
+            .sendProduct(argThat(arg -> Objects.equals(expectedSku, arg.sku())
+                && Objects.equals(expectedName, arg.name())
+                && Objects.equals(expectedStock, arg.stock())
+                && Objects.equals(expectedId, arg.id())
+                && Objects.equals(expectedEventType, arg.eventType())));
     }
 
     @Test
@@ -134,15 +159,25 @@ class ProductServiceTest {
         final var product = ProductEntity.create(expectedSku, expectedName, expectedStock,
             expectedCost, expectedPrice);
 
+        final var expectedId = product.getId();
+        final var expectedEventType = EventType.DELETE;
+
         when(repository.findById(any()))
             .thenReturn(Optional.of(product));
 
         doNothing().when(repository).delete(any());
+        doNothing().when(producer).sendProduct(any());
 
         service.deleteProduct("1");
 
         verify(repository, times(1)).findById("1");
         verify(repository, times(1)).delete(any());
+        verify(producer, times(1))
+            .sendProduct(argThat(arg -> Objects.equals(expectedSku, arg.sku())
+                && Objects.equals(expectedName, arg.name())
+                && Objects.equals(expectedStock, arg.stock())
+                && Objects.equals(expectedId, arg.id())
+                && Objects.equals(expectedEventType, arg.eventType())));
     }
 
     @Test
