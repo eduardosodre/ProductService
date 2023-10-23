@@ -1,6 +1,9 @@
 package br.com.school.product.domain.product;
 
 import br.com.school.product.domain.exception.NotFoundException;
+import br.com.school.product.domain.kafka.product.EventType;
+import br.com.school.product.domain.kafka.product.ProductEvent;
+import br.com.school.product.domain.kafka.product.ProductProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,9 +14,12 @@ import org.springframework.stereotype.Service;
 public class ProductService {
 
     private final ProductRepository repository;
+    private final ProductProducer producer;
 
     public ProductEntity createProduct(ProductEntity entity) {
-        return repository.save(entity);
+        final var savedProduct = repository.save(entity);
+        producer.sendProduct(ProductEvent.create(savedProduct, EventType.CREATE));
+        return savedProduct;
     }
 
     public ProductEntity updateProduct(ProductEntity productFromBd, ProductEntity product) {
